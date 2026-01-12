@@ -205,3 +205,36 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# =========================
+# PyCharm / JetBrains
+# =========================
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# =========================
+# Local databases
+# =========================
+*.db
+*.sqlite
+*.sqlite3
+
+# =========================
+# Logs
+# =========================
+logs/
+*.log
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Docker
+# =========================
+.env.docker
+docker-data/
