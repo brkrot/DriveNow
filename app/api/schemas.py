@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional, List
+from typing import Optional
 
 class AddCarRequest(BaseModel):
     model: str = Field(min_length=1)
@@ -13,3 +13,28 @@ class UpdateCarRequest(BaseModel):
 class CreateRentalRequest(BaseModel):
     car_id: int
     customer_name: str = Field(min_length=1)
+
+#--------------
+from datetime import datetime
+from typing import Optional
+
+
+class CarResponse(BaseModel):
+    id: int
+    model: str
+    year: int
+    status: str
+
+    class Config:
+        from_attributes = True
+
+
+class RentalResponse(BaseModel):
+    id: int
+    car_id: int
+    customer_name: str
+    start_date: datetime
+    end_date: Optional[datetime]
+
+    class Config:
+        from_attributes = True
