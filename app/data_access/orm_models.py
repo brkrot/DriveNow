@@ -15,14 +15,14 @@ class Car(Base):
 
     rentals = relationship("Rental", back_populates="car")
 
-    class Rental(Base):
-        __tablename__ = "rentals"
+class Rental(Base):
+    __tablename__ = "rentals"
 
-        id = Column(Integer, primary_key=True, index=True)
-        car_id = Column(Integer, ForeignKey("cars.id"), nullable=False, index=True)
-        customer_name = Column(String, nullable=False)
-        start_date = Column(String, nullable=False)
-        end_date = Column(String, nullable=False)
+    id = Column(Integer, primary_key=True, index=True)
+    car_id = Column(Integer, ForeignKey("cars.id"), nullable=False, index=True)
+    customer_name = Column(String, nullable=False)
+    start_date = Column(String, nullable=False)
+    end_date = Column(String, nullable=False)
 
     car = relationship("Car", back_populates="rentals")
 
