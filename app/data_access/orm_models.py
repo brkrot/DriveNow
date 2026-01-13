@@ -15,6 +15,9 @@ class Car(Base):
 
     rentals = relationship("Rental", back_populates="car")
 
+    def __repr__(self):
+        return f"(id={self.id}, model='{self.model}', year={self.year}, status='{self.status}')>"
+
 class Rental(Base):
     __tablename__ = "rentals"
 
