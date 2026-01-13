@@ -8,7 +8,7 @@ from app.data_access.orm_models import Car, CarStatus
 from app.data_access import operations
 
 logger = logging.getLogger(__name__)
-
+# todo convert all error message to constants/enums or specified exceptions
 def create_car(db: Session, model: str, year: int) -> Car:
     logger.info(f"create_car called with model={model} year={year}")
     car = operations.create_car(db=db, model=model, year=year)
@@ -61,6 +61,7 @@ def register_rental(db: Session, car_id: int, customer_name: str):
 
     operations.update_car(db=db, car=car, status=CarStatus.RENTED.value)
     logger.info(f'register_rental: created rental_id={rental.id} for car_id={car_id}')
+    return rental
 
 def end_rental(db: Session, rental_id: int):
     logger.info(f"end_rental called rental_id={rental_id}")
