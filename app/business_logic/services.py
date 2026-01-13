@@ -21,6 +21,9 @@ def update_car(
         raise ValueError(f"Car with id {car_id} does not exist.")
     return operations.update_car(db=db, car=car, model=model, year=year, status=status)
 
+def list_cars(db: Session, status: str | None = None):
+    return operations.list_cars(db=db, status=status)
+
 def register_rental(db: Session, car_id: int, customer_name: str):
     car = operations.get_car_by_id(db=db, car_id=car_id)
     if car is None:
