@@ -1,3 +1,5 @@
+import enum
+
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from datetime import datetime,timezone
@@ -5,13 +7,18 @@ from datetime import datetime,timezone
 from data_access.database import Base
 
 
+class CarStatus(str, enum.Enum):
+    AVAILABLE = "available"
+    RENTED = "rented"
+    MAINTENANCE = "maintenance"
+
 class Car(Base):
     __tablename__ = "cars"
 
     id = Column(Integer, primary_key=True, index=True)
     model = Column(String, nullable=False)
     year = Column(Integer, nullable=False)
-    status = Column(String, nullable=False, default='available')  # e.g., available, rented, maintenance
+    status = Column(String, nullable=False, default=CarStatus.AVAILABLE.value)  # CarStatus as string
 
     rentals = relationship("Rental", back_populates="car")
 

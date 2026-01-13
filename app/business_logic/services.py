@@ -4,7 +4,7 @@ import logging
 
 from sqlalchemy.orm import Session
 
-from app.data_access.orm_models import Car
+from app.data_access.orm_models import Car, CarStatus
 from app.data_access import operations
 
 logger = logging.getLogger(__name__)
@@ -43,7 +43,7 @@ def register_rental(db: Session, car_id: int, customer_name: str):
         logger.warning(f"register_rental: car_not_found id={car_id}")
         raise ValueError("car_not_found")
 
-    if car.status != "available":
+    if car.status != CarStatus.AVAILABLE.value:
         logger.warning(f"register_rental: car_not_available id={car_id} status={car.status}")
         raise ValueError("car_not_available")
 
@@ -59,7 +59,7 @@ def register_rental(db: Session, car_id: int, customer_name: str):
         start_date=datetime.utcnow(),
     )
 
-    operations.update_car(db=db, car=car, status="in_use")
+    operations.update_car(db=db, car=car, status=CarStatus.RENTED.value)
     logger.info(f'register_rental: created rental_id={rental.id} for car_id={car_id}')
 
 def end_rental(db: Session, rental_id: int):
@@ -80,5 +80,5 @@ def end_rental(db: Session, rental_id: int):
         logger.warning(f"end_rental: car_not_found id={rental.car_id}")
         raise ValueError("car_not_found")
 
-    operations.update_car(db=db, car=car, status="available")
+    operations.update_car(db=db, car=car, status=CarStatus.AVAILABLE.value)
     return rental

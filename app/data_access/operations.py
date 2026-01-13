@@ -1,10 +1,10 @@
 from typing import Optional, List
 from sqlalchemy.orm import Session
 
-from app.data_access.orm_models import Car
+from app.data_access.orm_models import Car, CarStatus
 
 
-def create_car(db: Session, model: str, year: int, status: str = "available") -> Car:
+def create_car(db: Session, model: str, year: int, status: str = CarStatus.AVAILABLE.value) -> Car:
     car = Car(model=model, year=year, status=status)
     db.add(car)
     db.commit()
