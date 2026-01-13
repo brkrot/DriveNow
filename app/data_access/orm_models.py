@@ -4,7 +4,7 @@ from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from datetime import datetime,timezone
 
-from data_access.database import Base
+from app.data_access.database import Base
 
 
 class CarStatus(str, enum.Enum):

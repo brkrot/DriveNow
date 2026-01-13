@@ -1,0 +1,12 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: drivenow
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./drivenow.db
+    volumes:
+      - ./drivenow.db:/app/drivenow.db
