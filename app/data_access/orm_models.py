@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
+from datetime import datetime,timezone
 
 from data_access.database import Base
 
@@ -10,7 +11,6 @@ class Car(Base):
     id = Column(Integer, primary_key=True, index=True)
     model = Column(String, nullable=False)
     year = Column(Integer, nullable=False)
-    brand = Column(String, nullable=False)
     status = Column(String, nullable=False, default='available')  # e.g., available, rented, maintenance
 
     rentals = relationship("Rental", back_populates="car")
@@ -21,8 +21,8 @@ class Rental(Base):
     id = Column(Integer, primary_key=True, index=True)
     car_id = Column(Integer, ForeignKey("cars.id"), nullable=False, index=True)
     customer_name = Column(String, nullable=False)
-    start_date = Column(String, nullable=False)
-    end_date = Column(String, nullable=False)
+    start_date = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
+    end_date = Column(String, nullable=True)
 
     car = relationship("Car", back_populates="rentals")
 
