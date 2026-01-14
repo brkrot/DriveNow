@@ -8,12 +8,13 @@ from fastapi import Response
 import logging
 
 
-from app.metrics.metrics import metrics_response, ACTIVE_CARS
-from app.data_access.database import get_db
+from app.metrics.metrics import metrics_response, ACTIVE_CARS, ONGOING_RENTALS
 from app.api.schemas import AddCarRequest, UpdateCarRequest, CarResponse, RentalResponse, CreateRentalRequest
 from app.business_logic import services
 from app.data_access.database import engine
 from app.data_access.orm_models import Base
+from app.data_access.database import get_db
+from app.data_access import operations
 from app.logging.logging import setup_logging
 
 logger = logging.getLogger(__name__)
@@ -98,4 +99,11 @@ def end_rental(rental_id: int, db: Session = Depends(get_db)):
             raise HTTPException(status_code=status_code, detail=detail)
         raise HTTPException(status_code=400, detail="Bad request")
 
+@app.get("/metrics")
+def metrics(db=Depends(get_db)):
+    # Recalculate metrics from DB (source of truth)
+    ACTIVE_CARS.set(operations.count_cars(db))
+    ONGOING_RENTALS.set(operations.count_ongoing_rentals(db))
 
+    data, content_type = metrics_response()
+    return Response(content=data, media_type=content_type)

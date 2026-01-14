@@ -42,7 +42,7 @@ def update_car(
     db.refresh(car)
     return car
 
-
+# todo - split to different files
 from datetime import datetime
 from typing import Optional
 from sqlalchemy.orm import Session
@@ -88,5 +88,21 @@ def end_rental(db: Session, rental: Rental, end_date: datetime) -> Rental:
     return rental
 
 
+# todo - split to different files
+from app.data_access.orm_models import Car, Rental
+def count_cars(db: Session) -> int:
+    """
+    Total number of cars in the system
+    """
+    return db.query(Car).count()
+
+
 def count_ongoing_rentals(db: Session) -> int:
-    return db.query(Rental).filter(Rental.end_date.is_(None)).count()
+    """
+    Rentals with no end date
+    """
+    return (
+        db.query(Rental)
+        .filter(Rental.end_date.is_(None))
+        .count()
+    )
