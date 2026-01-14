@@ -89,7 +89,7 @@ uvicorn app.api.main:app --reload
 ### Option 2: Run with Docker
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 ---
