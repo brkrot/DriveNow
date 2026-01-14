@@ -18,6 +18,8 @@ class Car(Base):
     id = Column(Integer, primary_key=True, index=True)
     model = Column(String, nullable=False)
     year = Column(Integer, nullable=False)
+
+    #todo - use Enum type for status
     status = Column(String, nullable=False, default=CarStatus.AVAILABLE.value)  # CarStatus as string
 
     rentals = relationship("Rental", back_populates="car")

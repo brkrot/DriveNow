@@ -8,6 +8,7 @@ class AddCarRequest(BaseModel):
 class UpdateCarRequest(BaseModel):
     model: Optional[str] = Field(default=None, min_length=1)
     year: Optional[int] = Field(default=None, ge=1886)
+    # todo: define allowed status values using Enum (CarStatus)
     status: Optional[str] = Field(default=None, min_length=1)
 
 class CreateRentalRequest(BaseModel):

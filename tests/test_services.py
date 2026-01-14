@@ -42,7 +42,6 @@ def test_create_car():
         car = services.create_car(db, "Toyota", 2020)
         assert car.id is not None
 
-
 def test_update_car():
     with db_session() as db:
         car = services.create_car(db, "Honda", 2019)
@@ -57,14 +56,12 @@ def test_update_car():
         assert updated_car.year == 2021
         assert updated_car.status == CarStatus.RENTED.value
 
-
 def test_list_cars():
     with db_session() as db:
         services.create_car(db, "Ford", 2018)
         services.create_car(db, "Chevrolet", 2021)
         cars = services.list_cars(db)
         assert len(cars) == 2
-
 
 def test_register_rental():
     with db_session() as db:
@@ -75,13 +72,11 @@ def test_register_rental():
         assert rental.car_id == car.id
         assert rental.end_date is None
 
-
 def test_register_rental_car_not_found():
     with db_session() as db:
         with pytest.raises(CarNotFound) as e:
             services.register_rental(db, 999, "Jane Doe")
         assert e.value.error_code == ErrorCode.CAR_NOT_FOUND
-
 
 def test_register_rental_car_not_available():
     with db_session() as db:
@@ -92,6 +87,8 @@ def test_register_rental_car_not_available():
             services.register_rental(db, car.id, "Alice")
         assert e.value.error_code == ErrorCode.CAR_NOT_AVAILABLE
 
+
+# noinspection PyTypeChecker,PyUnresolvedReferences
 def test_register_rental_active_rental_exists():
     with db_session() as db:
         car = services.create_car(db, "Audi", 2020)
@@ -103,7 +100,6 @@ def test_register_rental_active_rental_exists():
             ErrorCode.ACTIVE_RENTAL_EXISTS,
             ErrorCode.CAR_NOT_AVAILABLE,
         }
-
 
 def test_end_rental_sets_end_date():
     with db_session() as db:
