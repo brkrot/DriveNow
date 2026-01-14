@@ -4,11 +4,14 @@ import logging
 
 from sqlalchemy.orm import Session
 
+from app.business_logic.exceptions import CarNotFound, CarNotAvailable, ActiveRentalExists, RentalNotFound, \
+    RentalAlreadyEnded
 from app.data_access.orm_models import Car, CarStatus
 from app.data_access import operations
 
 logger = logging.getLogger(__name__)
 # todo convert all error message to constants/enums or specified exceptions
+
 def create_car(db: Session, model: str, year: int) -> Car:
     logger.info(f"create_car called with model={model} year={year}")
     car = operations.create_car(db=db, model=model, year=year)
@@ -27,7 +30,7 @@ def update_car(
     car = operations.get_car_by_id(db=db, car_id=car_id)
     if car is None:
         logger.warning(f"update_car: car with id {car_id} does not exist")
-        raise ValueError(f"Car with id {car_id} does not exist.")
+        raise CarNotFound()
     return operations.update_car(db=db, car=car, model=model, year=year, status=status)
 
 def list_cars(db: Session, status: str | None = None):
@@ -41,16 +44,16 @@ def register_rental(db: Session, car_id: int, customer_name: str):
     car = operations.get_car_by_id(db=db, car_id=car_id)
     if car is None:
         logger.warning(f"register_rental: car_not_found id={car_id}")
-        raise ValueError("car_not_found")
-
+        raise CarNotFound()
     if car.status != CarStatus.AVAILABLE.value:
         logger.warning(f"register_rental: car_not_available id={car_id} status={car.status}")
-        raise ValueError("car_not_available")
+        raise CarNotAvailable()
 
+    # Checking both car status and ongoing rental to ensure consistency. precenting case of data inconsistency due to ra
     ongoing = operations.get_ongoing_rental_for_car(db=db, car_id=car_id)
     if ongoing is not None:
         logger.warning(f"register_rental: active_rental_exists for car_id={car_id}")
-        raise ValueError("active_rental_exists")
+        raise ActiveRentalExists()
 
     rental = operations.create_rental(
         db=db,
@@ -68,18 +71,18 @@ def end_rental(db: Session, rental_id: int):
     rental = operations.get_rental_by_id(db=db, rental_id=rental_id)
     if rental is None:
         logger.warning(f"end_rental: rental_not_found id={rental_id}")
-        raise ValueError("rental_not_found")
+        raise RentalNotFound()
 
     if rental.end_date is not None:
         logger.warning(f"end_rental: rental_already_ended id={rental_id}")
-        raise ValueError("rental_already_ended")
+        raise RentalAlreadyEnded()
 
     rental = operations.end_rental(db=db, rental=rental, end_date=datetime.utcnow())
 
     car = operations.get_car_by_id(db=db, car_id=rental.car_id)
     if car is None:
         logger.warning(f"end_rental: car_not_found id={rental.car_id}")
-        raise ValueError("car_not_found")
+        raise CarNotFound()
 
     operations.update_car(db=db, car=car, status=CarStatus.AVAILABLE.value)
     return rental

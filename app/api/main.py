@@ -1,7 +1,7 @@
 from typing import Optional
 
 from fastapi import FastAPI
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from starlette import status
 from fastapi import Response
@@ -16,6 +16,7 @@ from app.data_access.orm_models import Base
 from app.data_access.database import get_db
 from app.data_access import operations
 from app.logging.logging import setup_logging
+from app.business_logic.exceptions import CarNotFound, BusinessError, CarNotAvailable, ActiveRentalExists, RentalNotFound, RentalAlreadyEnded
 
 logger = logging.getLogger(__name__)
 
@@ -48,10 +49,12 @@ def update_car(car_id: int, payload: UpdateCarRequest, db: Session = Depends(get
             status=payload.status,
         )
         return car
-    except ValueError as e:
-        if str(e) == "car_not_found":
-            raise HTTPException(status_code=404, detail="Car not found")
-        raise HTTPException(status_code=400, detail="Bad request")
+
+    except CarNotFound as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.error_code.value)
+
+    except BusinessError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.error_code.value)
 
 
 @app.get("/get_cars", response_model=list[CarResponse])
@@ -70,16 +73,19 @@ def register_rental(payload: CreateRentalRequest, db: Session = Depends(get_db))
             customer_name=payload.customer_name,
         )
         return rental
-    except ValueError as e:
-        error_map = {
-            "car_not_found": (404, "Car not found"),
-            "car_not_available": (400, "Car is not available for rental"),
-            "active_rental_exists": (400, "An active rental already exists for this car"),
-        }
-        if str(e) in error_map:
-            status_code, detail = error_map[str(e)]
-            raise HTTPException(status_code=status_code, detail=detail)
-        raise HTTPException(status_code=400, detail="Bad request")
+
+    except CarNotFound as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.error_code.value)
+
+    except (CarNotAvailable, ActiveRentalExists) as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=e.error_code.value)
+
+    except BusinessError as e:
+        # validation / other business-rule errors
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.error_code.value)
+
+
+
 
 
 @app.post("/end_rental/{rental_id}", response_model=RentalResponse)
@@ -88,16 +94,17 @@ def end_rental(rental_id: int, db: Session = Depends(get_db)):
     try:
         rental = services.end_rental(db=db, rental_id=rental_id)
         return rental
-    except ValueError as e:
-        error_map = {
-            "rental_not_found": (404, "Rental not found"),
-            "rental_already_ended": (400, "Rental has already been ended"),
-            "car_not_found": (404, "Associated car not found"),
-        }
-        if str(e) in error_map:
-            status_code, detail = error_map[str(e)]
-            raise HTTPException(status_code=status_code, detail=detail)
-        raise HTTPException(status_code=400, detail="Bad request")
+    except RentalNotFound as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.error_code.value)
+
+    except RentalAlreadyEnded as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=e.error_code.value)
+
+    except CarNotFound as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.error_code.value)
+
+    except BusinessError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.error_code.value)
 
 @app.get("/metrics")
 def metrics(db=Depends(get_db)):
