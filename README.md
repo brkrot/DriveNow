@@ -70,7 +70,7 @@ rentals
 
 ---
 
-## 🚀 How to Run the Project
+## How to Run the Project
 
 ### Option 1: Run Locally
 
@@ -162,5 +162,9 @@ POST /register_rental
 
 ![img_3.png](screenshots/unittests_screenshot.png)
 ---
+
+## Log example
+
+![img.png](screenshots/log_screenshot.png)
 
 

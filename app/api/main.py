@@ -59,7 +59,7 @@ def update_car(car_id: int, payload: UpdateCarRequest, db: Session = Depends(get
 
 @app.get("/get_cars", response_model=list[CarResponse])
 def get_cars(status: Optional[str] = None, db: Session = Depends(get_db)):
-    logger.info(f'GET /get_cars')
+    logger.info(f'GET /get_cars with status={status}')
     cars = services.list_cars(db=db, status=status)
     return cars
 
