@@ -7,6 +7,6 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=sqlite:///./drivenow.db
+      DATABASE_URL: sqlite:////app/data/drivenow.db
     volumes:
-      - ./drivenow.db:/app/drivenow.db
+      - ./data:/app/data
